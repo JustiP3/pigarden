@@ -1,0 +1,44 @@
+<html>
+    <head>
+        <title>{{ title }}</title>	
+	<style>
+            body {
+              font-family: "Helvetica", Sans-Serif;
+              background-color: gray;
+              color: blue;
+              display: block;
+              margin: auto;
+              padding: 10px; 
+            }
+
+            p {
+              padding: 10px;
+              margin: auto; 
+              display: block;
+              text-align: center; 
+	      color: black;               
+            }
+	    h1 {
+              padding: 10px;
+              margin: auto; 
+              display: block;
+              text-align: center;               
+            }
+            div {
+		color: white;
+                padding: 10px;
+                margin: auto;
+                display: block; 
+                width: 100%;
+            }
+            
+        </style>
+    </head>
+    <body>
+	<h1>Data Log</h1>
+        {% for member in members: %}
+        <p>{{ member }}</p>
+	{% endfor %}
+	
+    </body>
+</html>
