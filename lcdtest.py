@@ -1,163 +1,134 @@
-# MBTechWorks.com 2016
-# Control an LCD 1602 display from Raspberry Pi with Python programming
-
-#!/usr/bin/python
-
-# Pinout of the LCD:
-# 1 : GND
-# 2 : 5V power
-# 3 : Display contrast - Connect to middle pin potentiometer 
-# 4 : RS (Register Select)
-# 5 : R/W (Read Write) - Ground this pin (important)
-# 6 : Enable or Strobe
-# 7 : Data Bit 0 - data pin 0, 1, 2, 3 are not used
-# 8 : Data Bit 1 - 
-# 9 : Data Bit 2 - 
-# 10: Data Bit 3 - 
-# 11: Data Bit 4
-# 12: Data Bit 5
-# 13: Data Bit 6
-# 14: Data Bit 7
-# 15: LCD Backlight +5V
-# 16: LCD Backlight GND
-
+#!/usr/bin/env python
 import RPi.GPIO as GPIO
-import time
-
-# GPIO to LCD mapping
-LCD_RS = 7 # Pi pin 26
-LCD_E = 8 # Pi pin 24
-LCD_D4 = 25 # Pi pin 22
-LCD_D5 = 24 # Pi pin 18
-LCD_D6 = 23 # Pi pin 16
-LCD_D7 = 18 # Pi pin 12
-
-# Device constants
-LCD_CHR = True # Character mode
-LCD_CMD = False # Command mode
-LCD_CHARS = 16 # Characters per line (16 max)
-LCD_LINE_1 = 0x80 # LCD memory location for 1st line
-LCD_LINE_2 = 0xC0 # LCD memory location 2nd line
-
-# Define main program code
+from time import sleep
+ 
+# Define GPIO to LCD mapping
+LCD_RS = 7
+LCD_E  = 8
+LCD_D4 = 25
+LCD_D5 = 24
+LCD_D6 = 23
+LCD_D7 = 18
+ 
+# Define some device constants
+LCD_WIDTH = 16    # Maximum characters per line
+LCD_CHR = True
+LCD_CMD = False
+ 
+LCD_LINE_1 = 0x80 # LCD RAM address for the 1st line
+LCD_LINE_2 = 0xC0 # LCD RAM address for the 2nd line
+ 
+# Timing constants
+E_PULSE = 0.0005
+E_DELAY = 0.0005
+ 
 def main():
+  # Main program block
+  GPIO.setwarnings(False)
+  GPIO.setmode(GPIO.BCM)       # Use BCM GPIO numbers
+  GPIO.setup(LCD_E, GPIO.OUT)  # E
+  GPIO.setup(LCD_RS, GPIO.OUT) # RS
+  GPIO.setup(LCD_D4, GPIO.OUT) # DB4
+  GPIO.setup(LCD_D5, GPIO.OUT) # DB5
+  GPIO.setup(LCD_D6, GPIO.OUT) # DB6
+  GPIO.setup(LCD_D7, GPIO.OUT) # DB7
  
- GPIO.setwarnings(False)
- GPIO.setmode(GPIO.BCM) # Use BCM GPIO numbers
- GPIO.setup(LCD_E, GPIO.OUT) # Set GPIO's to output mode
- GPIO.setup(LCD_RS, GPIO.OUT)
- GPIO.setup(LCD_D4, GPIO.OUT)
- GPIO.setup(LCD_D5, GPIO.OUT)
- GPIO.setup(LCD_D6, GPIO.OUT)
- GPIO.setup(LCD_D7, GPIO.OUT)
+  # Initialise display
+  lcd_init()
+ 
+  while True:
+ 
+    # Send some test
+    lcd_string("Electronics Hub ",LCD_LINE_1)
+    lcd_string("    Presents    ",LCD_LINE_2)
+    
+    sleep(3) # 3 second delay
+ 
+    # Send some text
+    lcd_string("Rasbperry Pi",LCD_LINE_1)
+    lcd_string("16x2 LCD Test",LCD_LINE_2)
 
-# Initialize display
- lcd_init()
-
-# Loop - send text and sleep 3 seconds between texts
-# Change text to anything you wish, but must be 16 characters or less
-
- while True:
- lcd_text("Hello World!",LCD_LINE_1)
- lcd_text("",LCD_LINE_2)
-
- lcd_text("Rasbperry Pi",LCD_LINE_1)
- lcd_text("16x2 LCD Display",LCD_LINE_2)
-
- time.sleep(3) # 3 second delay
-
- lcd_text("ABCDEFGHIJKLMNOP",LCD_LINE_1)
- lcd_text("1234567890123456",LCD_LINE_2)
-
- time.sleep(3) # 3 second delay
-
- lcd_text("I love my",LCD_LINE_1)
- lcd_text("Raspberry Pi!",LCD_LINE_2)
-
- time.sleep(3)
-
- lcd_text("MBTechWorks.com",LCD_LINE_1)
- lcd_text("For more R Pi",LCD_LINE_2)
-
- time.sleep(3)
-
-# End of main program code
-
-
-# Initialize and clear display
+    sleep(3) # 3 second delay
+ 
+    # Send some text
+    lcd_string("1234567890*@$#%&",LCD_LINE_1)
+    lcd_string("abcdefghijklmnop",LCD_LINE_2)
+ 
+    sleep(3)
+      
 def lcd_init():
- lcd_write(0x33,LCD_CMD) # Initialize
- lcd_write(0x32,LCD_CMD) # Set to 4-bit mode
- lcd_write(0x06,LCD_CMD) # Cursor move direction
- lcd_write(0x0C,LCD_CMD) # Turn cursor off
- lcd_write(0x28,LCD_CMD) # 2 line display
- lcd_write(0x01,LCD_CMD) # Clear display
- time.sleep(0.0005) # Delay to allow commands to process
+  lcd_display(0x28,LCD_CMD) # Selecting 4 - bit mode with two rows
+  lcd_display(0x0C,LCD_CMD) # Display On,Cursor Off, Blink Off
+  lcd_display(0x01,LCD_CMD) # Clear display
 
-def lcd_write(bits, mode):
-# High bits
- GPIO.output(LCD_RS, mode) # RS
-
- GPIO.output(LCD_D4, False)
- GPIO.output(LCD_D5, False)
- GPIO.output(LCD_D6, False)
- GPIO.output(LCD_D7, False)
- if bits&0x10==0x10:
- GPIO.output(LCD_D4, True)
- if bits&0x20==0x20:
- GPIO.output(LCD_D5, True)
- if bits&0x40==0x40:
- GPIO.output(LCD_D6, True)
- if bits&0x80==0x80:
- GPIO.output(LCD_D7, True)
-
-# Toggle 'Enable' pin
- lcd_toggle_enable()
-
-# Low bits
- GPIO.output(LCD_D4, False)
- GPIO.output(LCD_D5, False)
- GPIO.output(LCD_D6, False)
- GPIO.output(LCD_D7, False)
- if bits&0x01==0x01:
- GPIO.output(LCD_D4, True)
- if bits&0x02==0x02:
- GPIO.output(LCD_D5, True)
- if bits&0x04==0x04:
- GPIO.output(LCD_D6, True)
- if bits&0x08==0x08:
- GPIO.output(LCD_D7, True)
-
-# Toggle 'Enable' pin
- lcd_toggle_enable()
-
+  sleep(E_DELAY)
+ 
+def lcd_display(bits, mode):
+  # Send byte to data pins
+  # bits = data
+  # mode = True  for character
+  #        False for command
+ 
+  GPIO.output(LCD_RS, mode) # RS
+ 
+  # High bits
+  GPIO.output(LCD_D4, False)
+  GPIO.output(LCD_D5, False)
+  GPIO.output(LCD_D6, False)
+  GPIO.output(LCD_D7, False)
+  if bits&0x10==0x10:
+    GPIO.output(LCD_D4, True)
+  if bits&0x20==0x20:
+    GPIO.output(LCD_D5, True)
+  if bits&0x40==0x40:
+    GPIO.output(LCD_D6, True)
+  if bits&0x80==0x80:
+    GPIO.output(LCD_D7, True)
+ 
+  # Toggle 'Enable' pin
+  lcd_toggle_enable()
+ 
+  # Low bits
+  GPIO.output(LCD_D4, False)
+  GPIO.output(LCD_D5, False)
+  GPIO.output(LCD_D6, False)
+  GPIO.output(LCD_D7, False)
+  if bits&0x01==0x01:
+    GPIO.output(LCD_D4, True)
+  if bits&0x02==0x02:
+    GPIO.output(LCD_D5, True)
+  if bits&0x04==0x04:
+    GPIO.output(LCD_D6, True)
+  if bits&0x08==0x08:
+    GPIO.output(LCD_D7, True)
+ 
+  # Toggle 'Enable' pin
+  lcd_toggle_enable()
+ 
 def lcd_toggle_enable():
- time.sleep(0.0005)
- GPIO.output(LCD_E, True)
- time.sleep(0.0005)
- GPIO.output(LCD_E, False)
- time.sleep(0.0005)
-
-def lcd_text(message,line):
- # Send text to display
- message = message.ljust(LCD_CHARS," ")
-
- lcd_write(line, LCD_CMD)
-
- for i in range(LCD_CHARS):
- lcd_write(ord(message[i]),LCD_CHR)
-
-
-#Begin program
-try:
- main()
+  # Toggle enable
+  sleep(E_DELAY)
+  GPIO.output(LCD_E, True)
+  sleep(E_PULSE)
+  GPIO.output(LCD_E, False)
+  sleep(E_DELAY)
  
-except KeyboardInterrupt:
- pass
+def lcd_string(message,line):
+  # Send string to display
  
-finally:
- lcd_write(0x01, LCD_CMD)
- lcd_text("So long!",LCD_LINE_1)
- lcd_text("MBTechWorks.com",LCD_LINE_2)
- GPIO.cleanup()
+  message = message.ljust(LCD_WIDTH," ")
  
+  lcd_display(line, LCD_CMD)
+ 
+  for i in range(LCD_WIDTH):
+    lcd_display(ord(message[i]),LCD_CHR)
+ 
+if __name__ == '__main__':
+ 
+  try:
+    main()
+  except KeyboardInterrupt:
+    pass
+  finally:
+    lcd_display(0x01, LCD_CMD)
+    GPIO.cleanup()
