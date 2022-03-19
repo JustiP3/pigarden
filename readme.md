@@ -10,15 +10,18 @@ Note:
 This is a python3 server. Use python3 command to run the server.
 Need to enable GPIO ports by using pigpio
 sudo pigpiod
+
+
+
+For Reference:
 pigpio reference (http://abyz.me.uk/rpi/pigpio/python.html)
+rpi usage   https://sourceforge.net/p/raspberry-gpio-python/wiki/BasicUsage/
 
 Which GPIO pins have I used ? (BCM Numbering)
 Temp Humidity: 
 GPIO 4
-
 LCD:
 GPIO 18 22 23 24 25 27
-
 Output:
 GPIO 21 
 
