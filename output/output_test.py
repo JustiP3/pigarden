@@ -8,8 +8,9 @@ except RuntimeError:
 def out():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(21, GPIO.OUT)
-    GPIO.output(21, GPIO.high)
+    GPIO.output(21, 1)
     time.sleep(5)
-    GPIO.output(21, GPIO.low)
+    GPIO.output(21, 0)
     GPIO.cleanup()
 
+out()
