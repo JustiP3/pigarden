@@ -1,9 +1,10 @@
 Goals:
 
 Get sensor values an write to text periodically
-This will be the internal server for each rasberry pi 
-Each internal server needs to be able to send data to the main server
-(yet to be created)
+Energize a relay based on the inputs
+Connect that relay to a solenoid water line valve
+This should be a service rather than a flask server
+
 
 Note:
 This is a python3 server. Use python3 command to run the server.
@@ -11,7 +12,17 @@ Need to enable GPIO ports by using pigpio
 sudo pigpiod
 pigpio reference (http://abyz.me.uk/rpi/pigpio/python.html)
 
+Which GPIO pins have I used ? (BCM Numbering)
+Temp Humidity: 
+GPIO 4
 
+LCD:
+GPIO 18 22 23 24 25 27
+
+Output:
+GPIO 21 
+
+--
 Current Status:
 
 -can write to file with variable data
